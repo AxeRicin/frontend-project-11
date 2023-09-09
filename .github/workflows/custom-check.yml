@@ -1,0 +1,17 @@
+name: custom-tests
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+      - run: make install
+
+      - name: Run linter
+        run: make lint
+
+      # - name: Build
+      #   run: make wpBuild
