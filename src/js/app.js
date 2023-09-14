@@ -1,6 +1,8 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
+import axios from 'axios';
 import render from './view';
+import parseRSS from './RSSparse';
 
 yup.setLocale({
   string: {
@@ -32,13 +34,29 @@ const app = () => {
     e.preventDefault();
     watcherState.validationUrl.state = 'updated';
     const formData = new FormData(e.target);
-    const schemaValidationUrl = yup.string().url().trim().notOneOf(initialState.rssFeeds, 'existing_RSS');
+    const schemaValidationUrl = yup.string().url().notOneOf(initialState.rssFeeds, 'existing_RSS').trim();
     schemaValidationUrl.validate(formData.get('url'))
-      .then((newUrl) => watcherState.rssFeeds.push(newUrl))
+      .then((newUrl) => {
+        axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(newUrl)}`)
+          .then((response) => {
+            const parser = new DOMParser();
+            const responseDom = parser.parseFromString(response.data.contents, 'text/xml');
+            if (responseDom.querySelector('parsererror')) throw new Error('invalid_RSS');
+            parseRSS(responseDom);
+          })
+          .catch((err) => {
+            watcherState.validationUrl.error = err.message;
+            watcherState.validationUrl.state = 'invalid';
+          });
+        watcherState.rssFeeds.push(newUrl);
+      })
       .catch((err) => {
         if (err.name === 'ValidationError') {
           watcherState.validationUrl.error = err.message;
           watcherState.validationUrl.state = 'invalid';
+        } else {
+          console.log('Выпала неизвесная ошибка:');
+          console.dir(err);
         }
       });
   });

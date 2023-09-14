@@ -5,7 +5,6 @@ const getI18n = (lng) => {
   const i18n = i18next.createInstance();
   return i18n.init({
     lng,
-    debug: true,
     resources,
   });
 };
