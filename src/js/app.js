@@ -13,7 +13,7 @@ yup.setLocale({
   },
 });
 
-const getAxiosResponse = (newUrl) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(newUrl)}`);
+const getAxiosResponse = (newUrl) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(newUrl)}`);
 
 const validate = (existingURLs, newURL) => {
   const schemaValidationUrl = yup.string().url().notOneOf(existingURLs, 'existing_RSS').trim();
@@ -41,6 +41,28 @@ const getElements = () => ({
   columnPosts: document.querySelector('.posts'),
 });
 
+const getNewPosts = (receivedPosts, oldPosts) => {
+  const oldLinks = oldPosts.map((post) => post.link);
+  const newPosts = receivedPosts.filter((post) => !oldLinks.includes(post.link));
+  return newPosts;
+};
+
+const updateFeeds = (watcherState) => {
+  const promises = watcherState.content.feeds.map((feed) => getAxiosResponse(feed.url)
+    .then((response) => parseRSS(response.data.contents))
+    .then((data) => getNewPosts(data.posts, watcherState.content.posts))
+    .then((newPosts) => newPosts.map((post) => ({
+      ...post,
+      feedId: feed.feedId,
+      postId: Number(uniqueId()),
+    })))
+    .then((newPosts) => {
+      watcherState.content.posts.unshift(...newPosts);
+    }));
+  Promise.allSettled(promises)
+    .then(setTimeout(updateFeeds, 5000, watcherState));
+};
+
 const app = () => {
   const defaultLanguage = 'ru';
   const elements = getElements();
@@ -61,10 +83,7 @@ const app = () => {
         validate(existingURLs, formData.get('url'))
           .then((newUrl) => getAxiosResponse(newUrl))
           .then((response) => {
-            const parser = new DOMParser();
-            const responseDom = parser.parseFromString(response.data.contents, 'text/xml');
-            if (responseDom.querySelector('parsererror')) throw new Error('invalid_RSS');
-            const data = parseRSS(responseDom);
+            const data = parseRSS(response.data.contents);
             const { url } = response.data.status;
             const feedId = Number(uniqueId());
             data.feed.url = url;
@@ -76,7 +95,7 @@ const app = () => {
             }));
             watcherState.content.feeds.push(data.feed);
             watcherState.content.posts = [...data.posts, ...watcherState.content.posts];
-            // updateFeeds(watcherState);
+            updateFeeds(watcherState);
           })
           .catch((err) => {
             if (err.name === 'ValidationError') {

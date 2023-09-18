@@ -17,14 +17,17 @@ const getPosts = (dom) => {
   return posts;
 };
 
-const parseRSS = (dom) => {
-  const data = {
+const parseRSS = (data) => {
+  const newData = {
     feed: {},
     posts: [],
   };
-  data.feed = getFeed(dom);
-  data.posts = getPosts(dom);
-  return data;
+  const parser = new DOMParser();
+  const responseDom = parser.parseFromString(data, 'text/xml');
+  if (responseDom.querySelector('parsererror')) throw new Error('invalid_RSS');
+  newData.feed = getFeed(responseDom);
+  newData.posts = getPosts(responseDom);
+  return newData;
 };
 
 export default parseRSS;
