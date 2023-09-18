@@ -18,13 +18,13 @@ const getPosts = (dom) => {
 };
 
 const parseRSS = (dom) => {
-  const result = {
+  const data = {
     feed: {},
     posts: [],
   };
-  result.feed = getFeed(dom);
-  result.posts = getPosts(dom);
-  return result;
+  data.feed = getFeed(dom);
+  data.posts = getPosts(dom);
+  return data;
 };
 
 export default parseRSS;
