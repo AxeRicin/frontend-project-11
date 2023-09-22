@@ -6,5 +6,6 @@ export default {
     invalid_RSS: 'Не содержит валидный RSS',
     title_feeds: 'Фиды',
     posts: 'Посты',
+    button_in_post: 'Показать',
   },
 };
