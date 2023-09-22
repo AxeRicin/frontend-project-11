@@ -36,6 +36,7 @@ const initState = (defaultLanguage) => ({
 const getElements = () => ({
   rssForm: document.querySelector('.rss-form'),
   rssImput: document.querySelector('#url-input'),
+  rssButton: document.querySelector('.rss-form button'),
   feedbackForm: document.querySelector('.feedback'),
   columnFeeds: document.querySelector('.feeds'),
   columnPosts: document.querySelector('.posts'),
@@ -70,7 +71,7 @@ const app = () => {
   const i18n = i18next.createInstance();
   i18n.init({
     lng: defaultLanguage,
-    debug: true,
+    debug: false,
     resources,
   })
     .then(() => {
@@ -95,10 +96,11 @@ const app = () => {
             }));
             watcherState.content.feeds.push(data.feed);
             watcherState.content.posts = [...data.posts, ...watcherState.content.posts];
+            watcherState.validationUrl.state = 'valid';
             updateFeeds(watcherState);
           })
           .catch((err) => {
-            if (err.name === 'ValidationError') {
+            if (err.message === 'URL_invalid' || err.message === 'invalid_RSS') {
               watcherState.validationUrl.error = err.message;
               watcherState.validationUrl.state = 'invalid';
             } else {

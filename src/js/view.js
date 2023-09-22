@@ -1,5 +1,11 @@
+const renderDisableButton = (elements) => {
+  const { rssButton } = elements;
+  rssButton.disabled = true;
+  rssButton.setAttribute('disabled', 'disabled');
+};
+
 const renderInvalidUrl = (elements, initialState, i18n) => {
-  const { rssImput, feedbackForm } = elements;
+  const { rssImput, rssButton, feedbackForm } = elements;
   const { validationUrl: { error } } = initialState;
 
   feedbackForm.innerHTML = '';
@@ -7,10 +13,11 @@ const renderInvalidUrl = (elements, initialState, i18n) => {
   feedbackForm.classList.remove('text-success');
   feedbackForm.classList.add('text-danger');
   feedbackForm.append(i18n.t(error));
+  rssButton.removeAttribute('disabled');
 };
 
 const renderValidUrl = (elements, initialState, i18n) => {
-  const { rssImput, feedbackForm } = elements;
+  const { rssButton, rssImput, feedbackForm } = elements;
   feedbackForm.innerHTML = '';
   rssImput.classList.remove('is-invalid');
   feedbackForm.classList.remove('text-danger');
@@ -18,6 +25,7 @@ const renderValidUrl = (elements, initialState, i18n) => {
   feedbackForm.append(i18n.t('RSS_uploaded'));
   rssImput.value = '';
   rssImput.focus();
+  rssButton.removeAttribute('disabled');
 };
 
 const initColumnLists = (columnFeeds, i18n) => {
@@ -96,10 +104,13 @@ const renderPosts = (elements, posts, i18n) => {
 
 const render = (elements, initialState, i18n) => (path, value) => {
   // console.log(path, value);
+  if (path === 'validationUrl.state' && value === 'updated') {
+    renderDisableButton(elements);
+  }
   if (path === 'validationUrl.state' && value === 'invalid') {
     renderInvalidUrl(elements, initialState, i18n);
   }
-  if (path === 'existingFeeds') {
+  if (path === 'validationUrl.state' && value === 'valid') {
     renderValidUrl(elements, initialState, i18n);
   }
   if (path === 'content.feeds') {
