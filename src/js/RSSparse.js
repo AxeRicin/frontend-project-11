@@ -13,6 +13,7 @@ const getPosts = (dom) => {
   items.forEach((item) => posts.push({
     title: item.querySelector('title').textContent,
     link: item.querySelector('link').textContent,
+    description: item.querySelector('description').textContent,
   }));
   return posts;
 };

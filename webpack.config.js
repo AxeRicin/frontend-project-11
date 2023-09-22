@@ -19,6 +19,7 @@ const config = {
   devServer: {
     open: true,
     static: path.resolve(__dirname, 'dist'),
+    port: 9000,
     host: 'localhost',
     hot: true,
   },

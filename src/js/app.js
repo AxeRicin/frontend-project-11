@@ -31,6 +31,10 @@ const initState = (defaultLanguage) => ({
     posts: [],
   },
   existingFeeds: [],
+  modal: {
+    state: 'hide',
+    post: null,
+  },
 });
 
 const getElements = () => ({
@@ -40,6 +44,10 @@ const getElements = () => ({
   feedbackForm: document.querySelector('.feedback'),
   columnFeeds: document.querySelector('.feeds'),
   columnPosts: document.querySelector('.posts'),
+  modal: document.querySelector('#modal'),
+  modalTitle: document.querySelector('#modal .modal-title'),
+  modalBody: document.querySelector('#modal .modal-body'),
+  modalLink: document.querySelector('#modal .modal-footer a'),
 });
 
 const getNewPosts = (receivedPosts, oldPosts) => {
@@ -64,6 +72,26 @@ const updateFeeds = (watcherState) => {
     .then(setTimeout(updateFeeds, 5000, watcherState));
 };
 
+const findPostById = (posts, id) => {
+  for (let i = 0; i < posts.length; i += 1) {
+    const currentPost = posts[i];
+    if (currentPost.postId === Number(id)) return currentPost;
+  }
+  return null;
+};
+
+const fillingModalWindow = (elements, watcherState, posts, button) => {
+  const postId = button.dataset.id;
+  const post = findPostById(posts, postId);
+  watcherState.modal.post = post;
+  watcherState.modal.state = 'show';
+};
+
+const closeModal = (watcherState) => {
+  watcherState.modal.post = null;
+  watcherState.modal.state = 'hide';
+};
+
 const app = () => {
   const defaultLanguage = 'ru';
   const elements = getElements();
@@ -77,6 +105,8 @@ const app = () => {
     .then(() => {
       const watcherState = onChange(initialState, render(elements, initialState, i18n));
       elements.rssForm.addEventListener('submit', (e) => {
+        elements.modal.addEventListener('show.bs.modal', (event) => fillingModalWindow(elements, watcherState, initialState.content.posts, event.relatedTarget));
+        elements.modal.addEventListener('hide.bs.modal', () => closeModal(watcherState));
         e.preventDefault();
         watcherState.validationUrl.state = 'updated';
         const formData = new FormData(e.target);

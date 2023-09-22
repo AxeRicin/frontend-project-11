@@ -28,7 +28,7 @@ const renderValidUrl = (elements, initialState, i18n) => {
   rssButton.removeAttribute('disabled');
 };
 
-const initColumnLists = (columnFeeds, i18n) => {
+const initColumnFeeds = (columnFeeds, i18n) => {
   const feedConteiner = document.createElement('div');
   feedConteiner.classList.add('card', 'border-0');
   const titelConteiner = document.createElement('div');
@@ -47,7 +47,7 @@ const initColumnLists = (columnFeeds, i18n) => {
 const renderFeeds = (elements, feeds, i18n) => {
   const { columnFeeds } = elements;
   if (columnFeeds.childNodes.length === 0) {
-    initColumnLists(columnFeeds, i18n);
+    initColumnFeeds(columnFeeds, i18n);
   }
   const feedList = columnFeeds.querySelector('ul');
   feedList.innerHTML = '';
@@ -97,9 +97,39 @@ const renderPosts = (elements, posts, i18n) => {
     title.textContent = post.title;
     title.href = post.link;
     title.setAttribute('data-id', post.postId);
-    li.append(title);
+    title.setAttribute('target', '_blank');
+    title.setAttribute('rel', 'noopener noreferrer');
+    const button = document.createElement('button');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.textContent = i18n.t('button_in_post');
+    button.setAttribute('data-id', post.postId);
+    button.setAttribute('type', 'button');
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
+    li.append(title, button);
     postLists.append(li);
   });
+};
+
+const renderModal = (elements, post) => {
+  const { modalTitle, modalBody, modalLink } = elements;
+  modalTitle.textContent = post.title;
+  modalBody.textContent = post.description;
+  modalLink.setAttribute('href', post.link);
+};
+
+const clearModal = (elements) => {
+  const { modalTitle, modalBody, modalLink } = elements;
+  modalTitle.textContent = '';
+  modalBody.textContent = '';
+  modalLink.setAttribute('href', '#');
+};
+
+const markPostAsRead = (elements, postId) => {
+  const { columnPosts } = elements;
+  const postTitle = columnPosts.querySelector(`[data-id="${postId}"]`);
+  postTitle.classList.remove('fw-bold');
+  postTitle.classList.add('fw-normal');
 };
 
 const render = (elements, initialState, i18n) => (path, value) => {
@@ -118,6 +148,13 @@ const render = (elements, initialState, i18n) => (path, value) => {
   }
   if (path === 'content.posts') {
     renderPosts(elements, value, i18n);
+  }
+  if (path === 'modal.state' && value === 'show') {
+    renderModal(elements, initialState.modal.post);
+    markPostAsRead(elements, initialState.modal.post.postId);
+  }
+  if (path === 'modal.state' && value === 'hide') {
+    clearModal(elements);
   }
 };
 
