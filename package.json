@@ -1,7 +1,7 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "My webpack project",
+  "description": "RSS Reader is a service for aggregation of RSS flows, with which it is convenient to read a variety of sources, for example, blogs. It allows you to add an unlimited amount of the RSS-flows, it updates them and adds new notes to the overall stream.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
