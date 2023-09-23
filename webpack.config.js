@@ -5,9 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const autoprefixer = require('autoprefixer');
-const miniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const isProduction = process.env.NODE_ENV == 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const config = {
   target: 'web',
@@ -22,6 +22,9 @@ const config = {
     port: 9000,
     host: 'localhost',
     hot: true,
+  },
+  watchOptions: {
+    poll: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -43,7 +46,7 @@ const config = {
         use: [
           {
             // Extracts CSS for each JS file that includes CSS
-            loader: miniCssExtractPlugin.loader,
+            loader: MiniCssExtractPlugin.loader,
           },
           {
             // Interprets `@import` and `url()` like `import/require()` and will resolve them

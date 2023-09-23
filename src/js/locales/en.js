@@ -7,5 +7,6 @@ export default {
     title_feeds: 'Feeds',
     posts: 'Posts',
     button_in_post: 'Show',
+    ERR_NETWORK: 'Network error',
   },
 };

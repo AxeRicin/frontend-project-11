@@ -111,13 +111,13 @@ const app = () => {
         watcherState.validationUrl.state = 'updated';
         const formData = new FormData(e.target);
         const existingURLs = watcherState.content.feeds.map((feed) => feed.url);
-        validate(existingURLs, formData.get('url'))
+        const currentURL = formData.get('url');
+        validate(existingURLs, currentURL)
           .then((newUrl) => getAxiosResponse(newUrl))
           .then((response) => {
             const data = parseRSS(response.data.contents);
-            const { url } = response.data.status;
             const feedId = Number(uniqueId());
-            data.feed.url = url;
+            data.feed.url = currentURL;
             data.feed.feedId = feedId;
             data.posts = data.posts.map((post) => ({
               ...post,
@@ -130,12 +130,21 @@ const app = () => {
             updateFeeds(watcherState);
           })
           .catch((err) => {
-            if (err.message === 'URL_invalid' || err.message === 'invalid_RSS') {
-              watcherState.validationUrl.error = err.message;
-              watcherState.validationUrl.state = 'invalid';
-            } else {
-              console.log('Выпала неизвесная ошибка:');
-              console.dir(err);
+            switch (err.name) {
+              case 'ValidationError':
+              case 'ValidationRSSError':
+                watcherState.validationUrl.error = err.message;
+                watcherState.validationUrl.state = 'invalid';
+                break;
+              case 'AxiosError':
+                watcherState.validationUrl.error = err.code;
+                watcherState.validationUrl.state = 'invalid';
+                break;
+
+              default:
+                console.log('Выпала неизвесная ошибка:');
+                console.dir(err);
+                break;
             }
           });
       });

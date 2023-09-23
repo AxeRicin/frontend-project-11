@@ -1,3 +1,5 @@
+import ValidationRSSError from './ValidationRSSError';
+
 const getFeed = (dom) => {
   const titleFeed = dom.querySelector('channel>title').textContent;
   const descriptionFeed = dom.querySelector('channel>description').textContent;
@@ -25,7 +27,7 @@ const parseRSS = (data) => {
   };
   const parser = new DOMParser();
   const responseDom = parser.parseFromString(data, 'text/xml');
-  if (responseDom.querySelector('parsererror')) throw new Error('invalid_RSS');
+  if (responseDom.querySelector('parsererror')) throw new ValidationRSSError('invalid_RSS');
   newData.feed = getFeed(responseDom);
   newData.posts = getPosts(responseDom);
   return newData;
