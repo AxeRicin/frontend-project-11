@@ -71,13 +71,7 @@ const updateFeeds = (watcherState) => {
     .then(setTimeout(updateFeeds, 5000, watcherState));
 };
 
-const findPostById = (posts, id) => {
-  for (let i = 0; i < posts.length; i += 1) {
-    const currentPost = posts[i];
-    if (currentPost.postId === Number(id)) return currentPost;
-  }
-  return null;
-};
+const findPostById = (posts, id) => posts.find((post) => post.postId === Number(id));
 
 const fillingModalWindow = (elements, watcherState, posts, button) => {
   const postId = button.dataset.id;
