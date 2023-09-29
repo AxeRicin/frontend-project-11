@@ -7,15 +7,14 @@ import resources from './locales';
 import render from './view';
 import parseRSS from './RSSparse';
 
-yup.setLocale({
-  string: {
-    url: 'URL_invalid',
-  },
-});
-
 const getAxiosResponse = (newUrl) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(newUrl)}`);
 
 const validate = (existingURLs, newURL) => {
+  yup.setLocale({
+    string: {
+      url: 'URL_invalid',
+    },
+  });
   const schemaValidationUrl = yup.string().url().notOneOf(existingURLs, 'existing_RSS').trim();
   return schemaValidationUrl.validate(newURL);
 };
