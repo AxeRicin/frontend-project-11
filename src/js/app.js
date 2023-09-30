@@ -5,9 +5,14 @@ import uniqueId from 'lodash/uniqueId';
 import i18next from 'i18next';
 import resources from './locales';
 import render from './view';
-import parseRSS from './RSSparse';
+import parseRSS from './parseRSS';
 
-const getAxiosResponse = (newUrl) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(newUrl)}`);
+const getAxiosResponse = (newUrl) => {
+  const url = new URL('https://allorigins.hexlet.app/get');
+  url.searchParams.append('disableCache', 'true');
+  url.searchParams.append('url', newUrl);
+  return axios.get(url.href);
+};
 
 const validate = (existingURLs, newURL) => {
   yup.setLocale({
@@ -56,15 +61,16 @@ const getNewPosts = (receivedPosts, oldPosts) => {
 
 const updateFeeds = (watcherState) => {
   const promises = watcherState.content.feeds.map((feed) => getAxiosResponse(feed.url)
-    .then((response) => parseRSS(response.data.contents))
-    .then((data) => getNewPosts(data.posts, watcherState.content.posts))
-    .then((newPosts) => newPosts.map((post) => ({
-      ...post,
-      feedId: feed.feedId,
-      postId: uniqueId(),
-    })))
-    .then((newPosts) => {
-      watcherState.content.posts.unshift(...newPosts);
+    .then((response) => {
+      const data = parseRSS(response.data.contents);
+      const newPosts = getNewPosts(data.posts, watcherState.content.posts)
+        .map((post) => ({
+          ...post,
+          feedId: feed.feedId,
+          postId: uniqueId(),
+        }));
+
+      if (newPosts.length > 0) watcherState.content.posts.unshift(...newPosts);
     }));
   Promise.allSettled(promises)
     .then(setTimeout(updateFeeds, 5000, watcherState));
