@@ -10,27 +10,22 @@ const getFeed = (dom) => {
 };
 
 const getPosts = (dom) => {
-  const posts = [];
   const items = dom.querySelectorAll('item');
-  items.forEach((item) => posts.push({
+  return Array.from(items).map((item) => ({
     title: item.querySelector('title').textContent,
     link: item.querySelector('link').textContent,
     description: item.querySelector('description').textContent,
   }));
-  return posts;
 };
 
 const parseRSS = (data) => {
-  const newData = {
-    feed: {},
-    posts: [],
-  };
   const parser = new DOMParser();
   const responseDom = parser.parseFromString(data, 'text/xml');
   if (responseDom.querySelector('parsererror')) throw new ValidationRSSError('invalid_RSS');
-  newData.feed = getFeed(responseDom);
-  newData.posts = getPosts(responseDom);
-  return newData;
+  return {
+    feed: getFeed(responseDom),
+    posts: getPosts(responseDom),
+  };
 };
 
 export default parseRSS;
