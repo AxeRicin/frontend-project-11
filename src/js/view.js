@@ -84,7 +84,7 @@ const initColumnPosts = (columnPosts, i18n) => {
   columnPosts.append(conteiner);
 };
 
-const renderPosts = (elements, posts, i18n) => {
+const renderPosts = (elements, posts, readPosts, i18n) => {
   const { columnPosts } = elements;
   if (columnPosts.childNodes.length === 0) {
     initColumnPosts(columnPosts, i18n);
@@ -95,7 +95,11 @@ const renderPosts = (elements, posts, i18n) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const title = document.createElement('a');
-    title.classList.add('fw-bold');
+    if (readPosts.includes(post.postId)) {
+      title.classList.add('fw-normal');
+    } else {
+      title.classList.add('fw-bold');
+    }
     title.textContent = post.title;
     title.href = post.link;
     title.setAttribute('data-id', post.postId);
@@ -135,7 +139,7 @@ const markPostAsRead = (elements, postId) => {
 };
 
 const render = (elements, initialState, i18n) => (path, value) => {
-  // console.log(path, value);
+  console.log(path, value);
   if (path === 'validationUrl.state' && value === 'updated') {
     renderFormUpdated(elements);
   }
@@ -149,13 +153,15 @@ const render = (elements, initialState, i18n) => (path, value) => {
     renderFeeds(elements, value, i18n);
   }
   if (path === 'content.posts') {
-    renderPosts(elements, value, i18n);
+    renderPosts(elements, value, initialState.readPosts, i18n);
   }
-  if (path === 'modal.state' && value === 'show') {
+  if (path === 'modal.post' && value) {
     renderModal(elements, initialState.modal.post);
-    markPostAsRead(elements, initialState.modal.post.postId);
   }
-  if (path === 'modal.state' && value === 'hide') {
+  if (path === 'readPosts') {
+    markPostAsRead(elements, initialState.readPosts.at(-1));
+  }
+  if (path === 'modal.state' && !value) {
     clearModal(elements);
   }
 };
