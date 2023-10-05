@@ -24,35 +24,6 @@ const validate = (existingURLs, newURL) => {
   return schemaValidationUrl.validate(newURL);
 };
 
-const initState = (defaultLanguage) => ({
-  defaultLanguage,
-  validationUrl: {
-    state: 'valid',
-    error: null,
-  },
-  content: {
-    feeds: [],
-    posts: [],
-  },
-  readPosts: [],
-  modal: {
-    post: null,
-  },
-});
-
-const getElements = () => ({
-  rssForm: document.querySelector('.rss-form'),
-  rssImput: document.querySelector('#url-input'),
-  rssButton: document.querySelector('.rss-form button'),
-  feedbackForm: document.querySelector('.feedback'),
-  columnFeeds: document.querySelector('.feeds'),
-  columnPosts: document.querySelector('.posts'),
-  modal: document.querySelector('#modal'),
-  modalTitle: document.querySelector('#modal .modal-title'),
-  modalBody: document.querySelector('#modal .modal-body'),
-  modalLink: document.querySelector('#modal .modal-footer a'),
-});
-
 const getNewPosts = (receivedPosts, oldPosts) => {
   const oldLinks = oldPosts.map((post) => post.link);
   const newPosts = receivedPosts.filter((post) => !oldLinks.includes(post.link));
@@ -78,7 +49,7 @@ const updateFeeds = (watcherState) => {
 
 const findPostById = (posts, id) => posts.find((post) => post.postId === id);
 
-const fillingModalWindow = (elements, watcherState, posts, button) => {
+const fillingModalWindow = (watcherState, posts, button) => {
   const postId = button.dataset.id;
   const post = findPostById(posts, postId);
   if (!watcherState.readPosts.includes(postId)) watcherState.readPosts.push(postId);
@@ -92,14 +63,39 @@ const closeModal = (watcherState) => {
 };
 
 const app = () => {
+  const elements = {
+    rssForm: document.querySelector('.rss-form'),
+    rssInput: document.querySelector('#url-input'),
+    rssButton: document.querySelector('.rss-form button'),
+    feedbackForm: document.querySelector('.feedback'),
+    columnFeeds: document.querySelector('.feeds'),
+    columnPosts: document.querySelector('.posts'),
+    modal: document.querySelector('#modal'),
+    modalTitle: document.querySelector('#modal .modal-title'),
+    modalBody: document.querySelector('#modal .modal-body'),
+    modalLink: document.querySelector('#modal .modal-footer a'),
+  };
+  const defaultLanguage = 'ru';
+  const initialState = {
+    defaultLanguage,
+    validationUrl: {
+      state: 'valid',
+      error: null,
+    },
+    content: {
+      feeds: [],
+      posts: [],
+    },
+    readPosts: [],
+    modal: {
+      post: null,
+    },
+  };
   yup.setLocale({
     string: {
       url: 'URL_invalid',
     },
   });
-  const defaultLanguage = 'ru';
-  const elements = getElements();
-  const initialState = initState(defaultLanguage);
   const i18n = i18next.createInstance();
   i18n.init({
     lng: defaultLanguage,
@@ -110,8 +106,6 @@ const app = () => {
       const watcherState = onChange(initialState, render(elements, initialState, i18n));
       updateFeeds(watcherState);
       elements.rssForm.addEventListener('submit', (e) => {
-        elements.modal.addEventListener('show.bs.modal', (event) => fillingModalWindow(elements, watcherState, initialState.content.posts, event.relatedTarget));
-        elements.modal.addEventListener('hide.bs.modal', () => closeModal(watcherState));
         e.preventDefault();
         watcherState.validationUrl.state = 'updated';
         const formData = new FormData(e.target);
@@ -158,6 +152,8 @@ const app = () => {
           watcherState.readPosts.push(targetId);
         }
       });
+      elements.modal.addEventListener('show.bs.modal', (event) => fillingModalWindow(watcherState, initialState.content.posts, event.relatedTarget));
+      elements.modal.addEventListener('hide.bs.modal', () => closeModal(watcherState));
     });
 };
 
