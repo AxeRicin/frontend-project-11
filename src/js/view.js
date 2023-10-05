@@ -1,32 +1,33 @@
 const renderFormUpdated = (elements) => {
-  const { rssImput, rssButton, feedbackForm } = elements;
+  const { rssInput, rssButton, feedbackForm } = elements;
   rssButton.disabled = true;
-  rssImput.readOnly = true;
+  rssInput.readOnly = true;
   rssButton.setAttribute('disabled', 'disabled');
+  rssInput.classList.remove('is-invalid');
   feedbackForm.innerHTML = '';
 };
 
 const renderInvalidUrl = (elements, initialState, i18n) => {
-  const { rssImput, rssButton, feedbackForm } = elements;
+  const { rssInput, rssButton, feedbackForm } = elements;
   const { validationUrl: { error } } = initialState;
 
-  rssImput.classList.add('is-invalid');
+  rssInput.classList.add('is-invalid');
   feedbackForm.classList.remove('text-success');
   feedbackForm.classList.add('text-danger');
   feedbackForm.append(i18n.t(error));
-  rssImput.readOnly = false;
+  rssInput.readOnly = false;
   rssButton.removeAttribute('disabled');
 };
 
 const renderValidUrl = (elements, initialState, i18n) => {
-  const { rssButton, rssImput, feedbackForm } = elements;
-  rssImput.classList.remove('is-invalid');
+  const { rssButton, rssInput, feedbackForm } = elements;
+  rssInput.classList.remove('is-invalid');
   feedbackForm.classList.remove('text-danger');
   feedbackForm.classList.add('text-success');
   feedbackForm.append(i18n.t('RSS_uploaded'));
-  rssImput.value = '';
-  rssImput.focus();
-  rssImput.readOnly = false;
+  rssInput.value = '';
+  rssInput.focus();
+  rssInput.readOnly = false;
   rssButton.removeAttribute('disabled');
 };
 
