@@ -44,7 +44,7 @@ const updateFeeds = (watcherState) => {
       if (newPosts.length > 0) watcherState.content.posts.unshift(...newPosts);
     }));
   Promise.allSettled(promises)
-    .then(setTimeout(updateFeeds, 5000, watcherState));
+    .then(() => setTimeout(updateFeeds, 5000, watcherState));
 };
 
 const findPostById = (posts, id) => posts.find((post) => post.postId === id);
