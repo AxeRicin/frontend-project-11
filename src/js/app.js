@@ -52,7 +52,7 @@ const findPostById = (posts, id) => posts.find((post) => post.postId === id);
 const fillingModalWindow = (watcherState, posts, button) => {
   const postId = button.dataset.id;
   const post = findPostById(posts, postId);
-  if (!watcherState.readPosts.includes(postId)) watcherState.readPosts.push(postId);
+  if (!watcherState.readPosts.has(postId)) watcherState.readPosts.add(postId);
   watcherState.modal.post = post;
   watcherState.modal.state = 'show';
 };
@@ -86,7 +86,7 @@ const app = () => {
       feeds: [],
       posts: [],
     },
-    readPosts: [],
+    readPosts: new Set(),
     modal: {
       post: null,
     },
@@ -148,8 +148,8 @@ const app = () => {
       });
       elements.columnPosts.addEventListener('click', (e) => {
         const targetId = e.target.dataset.id;
-        if (targetId && !watcherState.readPosts.includes(targetId)) {
-          watcherState.readPosts.push(targetId);
+        if (targetId && !watcherState.readPosts.has(targetId)) {
+          watcherState.readPosts.add(targetId);
         }
       });
       elements.modal.addEventListener('show.bs.modal', (event) => fillingModalWindow(watcherState, initialState.content.posts, event.relatedTarget));

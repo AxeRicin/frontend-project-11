@@ -96,7 +96,7 @@ const renderPosts = (elements, posts, readPosts, i18n) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const title = document.createElement('a');
-    if (readPosts.includes(post.postId)) {
+    if (readPosts.has(post.postId)) {
       title.classList.add('fw-normal');
     } else {
       title.classList.add('fw-bold');
@@ -139,8 +139,10 @@ const markPostAsRead = (elements, postId) => {
   postTitle.classList.add('fw-normal');
 };
 
+const getLastElemFromSet = (coll) => Array.from(coll).at(-1);
+
 const render = (elements, initialState, i18n) => (path, value) => {
-  console.log(path, value);
+  // console.log(path, value);
   if (path === 'validationUrl.state' && value === 'updated') {
     renderFormUpdated(elements);
   }
@@ -160,7 +162,7 @@ const render = (elements, initialState, i18n) => (path, value) => {
     renderModal(elements, initialState.modal.post);
   }
   if (path === 'readPosts') {
-    markPostAsRead(elements, initialState.readPosts.at(-1));
+    markPostAsRead(elements, getLastElemFromSet(initialState.readPosts));
   }
   if (path === 'modal.state' && !value) {
     clearModal(elements);
