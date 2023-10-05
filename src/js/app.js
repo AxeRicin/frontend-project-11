@@ -20,11 +20,6 @@ const getAxiosResponse = (newUrl) => {
 };
 
 const validate = (existingURLs, newURL) => {
-  yup.setLocale({
-    string: {
-      url: 'URL_invalid',
-    },
-  });
   const schemaValidationUrl = yup.string().url().notOneOf(existingURLs, 'existing_RSS').trim();
   return schemaValidationUrl.validate(newURL);
 };
@@ -33,7 +28,7 @@ const initState = (defaultLanguage) => ({
   defaultLanguage,
   validationUrl: {
     state: 'valid',
-    error: '',
+    error: null,
   },
   content: {
     feeds: [],
@@ -97,6 +92,11 @@ const closeModal = (watcherState) => {
 };
 
 const app = () => {
+  yup.setLocale({
+    string: {
+      url: 'URL_invalid',
+    },
+  });
   const defaultLanguage = 'ru';
   const elements = getElements();
   const initialState = initState(defaultLanguage);
