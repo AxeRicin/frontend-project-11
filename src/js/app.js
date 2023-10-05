@@ -7,10 +7,15 @@ import resources from './locales';
 import render from './view';
 import parseRSS from './parseRSS';
 
-const getAxiosResponse = (newUrl) => {
+const getURLForRequest = (newUrl) => {
   const url = new URL('https://allorigins.hexlet.app/get');
   url.searchParams.append('disableCache', 'true');
   url.searchParams.append('url', newUrl);
+  return url;
+};
+
+const getAxiosResponse = (newUrl) => {
+  const url = getURLForRequest(newUrl);
   return axios.get(url.href);
 };
 
